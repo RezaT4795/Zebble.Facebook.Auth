@@ -8,51 +8,55 @@
 
     public partial class Facebook
     {
-        public static void FacebookAutoLogAppEventsEnabled(bool enable) => SDK.Settings.AutoLogAppEventsEnabled = enable;
+        public static void FacebookAutoLogAppEventsEnabled(bool enable) => SDK.Settings.SharedSettings.IsAutoLogAppEventsEnabled = enable;
 
-        public static void EnableUpdatesOnAccessTokenChange(bool enable) => SDK.Profile.EnableUpdatesOnAccessTokenChange(enable: enable);
+        public static void EnableUpdatesOnAccessTokenChange(bool enable) => SDK.Profile.IsUpdatedWithAccessTokenChange = enable;
 
-        public static void SetAdvertiserIDCollectionEnabled(bool enable) => SDK.Settings.AdvertiserIdCollectionEnabled = enable;
+        public static void SetAdvertiserIDCollectionEnabled(bool enable) => SDK.Settings.SharedSettings.IsAdvertiserIdCollectionEnabled = enable;
 
         public static void ActivateAppEvents() => SDK.AppEvents.Shared.ActivateApp();
 
         public static void CallEvent(EventNames eventName, Dictionary<ParameterNames, object> @params, double? valueToSum = null)
         {
-            var keys = @params.Select(x => Enum.GetName(typeof(SDK.AppEventParameterName), x.Key.ToParameterName())).ToArray();
+            var keys = @params.Select(x => new NSString(Enum.GetName(typeof(SDK.AppEventParameterName), x.Key.ToParameterName()))).ToArray();
             var values = @params.Select(x => NSObject.FromObject(x.Value)).ToArray();
 
-            var param = NSDictionary.FromObjectsAndKeys(values, keys);
+            var param = new NSDictionary<NSString, NSObject>(keys, values);
+
             if (valueToSum.HasValue)
-                SDK.AppEvents.LogEvent(eventName.ToEventName(), valueToSum.Value, param);
+                SDK.AppEvents.Shared.LogEvent(eventName.ToEventName().ToString(), valueToSum.Value, param);
             else
-                SDK.AppEvents.LogEvent(eventName.ToEventName(), param);
+                SDK.AppEvents.Shared.LogEvent(eventName.ToEventName().ToString(), param);
         }
 
         public static void CallEvent(string eventName, Dictionary<string, object> @params, double? valueToSum = null)
         {
-            var keys = @params.Select(x => x.Key.ToNs()).ToArray();
-            var values = @params.Select(x => x.Value).ToArray();
+            var keys = @params.Select(x => new NSString(x.Key)).ToArray();
+            var values = @params.Select(x => NSObject.FromObject(x.Value)).ToArray();
 
-            var param = NSDictionary.FromObjectsAndKeys(values, keys);
+            var param = new NSDictionary<NSString, NSObject>(keys, values);
             if (valueToSum.HasValue)
-                SDK.AppEvents.LogEvent(eventName, valueToSum.Value, param);
+                SDK.AppEvents.Shared.LogEvent(eventName, valueToSum.Value, param);
             else
-                SDK.AppEvents.LogEvent(eventName, param);
+                SDK.AppEvents.Shared.LogEvent(eventName, param);
         }
 
         public static void CallLogPurchase(double purchaseAmount, string currency, Dictionary<string, object> @params = null, AccessToken accessToken = null)
         {
+            NSDictionary<NSString, NSObject> param = null;
             if (@params != null)
             {
-                var keys = @params.Select(x => x.Key.ToNs()).ToArray();
-                var values = @params.Select(x => x.Value).ToArray();
-                var param = NSDictionary.FromObjectsAndKeys(values, keys);
+                var keys = @params.Select(x => new NSString(x.Key)).ToArray();
+                var values = @params.Select(x => NSObject.FromObject(x.Value)).ToArray();
+                param = new NSDictionary<NSString, NSObject>(keys, values);
 
-                if (accessToken == null) SDK.AppEvents.LogPurchase(purchaseAmount, currency, param);
-                else SDK.AppEvents.LogPurchase(purchaseAmount, currency, param, accessToken.ToSDKAccessToken());
+                if (accessToken == null)
+                    SDK.AppEvents.Shared.LogPurchase(purchaseAmount, currency, param);
+                else
+                    SDK.AppEvents.Shared.LogPurchase(purchaseAmount, currency, param, accessToken.ToSDKAccessToken());
             }
             else
-                SDK.AppEvents.LogPurchase(purchaseAmount, currency);
+                SDK.AppEvents.Shared.LogPurchase(purchaseAmount, currency);
         }
 
         static SDK.AppEventName ToEventName(this EventNames eventName)

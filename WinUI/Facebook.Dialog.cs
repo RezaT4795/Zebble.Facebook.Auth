@@ -39,10 +39,10 @@
             Container.Width.BindTo(View.Root.Width, x => x * 0.8f);
             Container.Height.BindTo(View.Root.Height, x => x * 0.8f);
 
-            Container.CenterAlign(delayUntilRender: true)
-                     .MiddleAlign(delayUntilRender: true)
+            Container.Center()
                      .Background(color: Colors.White)
-                     .Border(1, color: "#4267b2", radius: 5);
+                     .Border(1, color: "#4267b2")
+                     .BorderRadius(5);
 
             await Container.Add(new Button().Text("Cancel").Background(color: Colors.Black).TextColor(Colors.White).On(x => x.Tapped, () => CloseDialog()));
         }

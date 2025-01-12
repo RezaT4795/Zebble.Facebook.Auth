@@ -58,7 +58,7 @@
 
         static Task<string[]> SetRequirements(Field[] fields)
         {
-            CallbackManager = SDK.CallbackManagerFactory.Create();
+            CallbackManager = SDK.ICallbackManager.Factory.Create();
             LoginManager.RegisterCallback(CallbackManager, new FacebookCallback());
             return Task.FromResult(GetRequiredPermissions(fields));
         }

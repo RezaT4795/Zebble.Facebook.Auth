@@ -14,8 +14,8 @@
 
         public static void Initialize()
         {
-            SDK.Settings.AppId = ApplicationId;
-            SDK.Settings.DisplayName = AppDisplayName;
+            SDK.Settings.SharedSettings.AppId = ApplicationId;
+            SDK.Settings.SharedSettings.DisplayName = AppDisplayName;
         }
     }
 }
